@@ -3,7 +3,7 @@ require 'grape/middleware/logger'
 
 describe Grape::Middleware::Logger do
   let(:app) { double('app') }
-  let(:options) { { filter: ParamFilter.new, logger: Object.new } }
+  let(:options) { { filter: ParamFilter.new, logger: Object.new, application: 'Cabbit', service: 'Cabbit_v1' } }
 
   subject { described_class.new(app, options) }
 

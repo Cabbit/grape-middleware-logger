@@ -10,8 +10,8 @@ module Grape
       def log
         @log ||= {
           'timestamp' => start_time.iso8601,
-          'application' => '',
-          'service'     => '',
+          'application' => application,
+          'service'     => service,
           'fields'=> {
             'method' =>   env['grape.request'].request_method,
             'resource' => env['grape.request'].path,
@@ -72,6 +72,14 @@ module Grape
 
       def start_time
         @start_time ||= Time.now.utc
+      end
+
+      def application
+        @application ||= @options[:application] || ''
+      end
+
+      def service
+        @service ||= @options[:service] || ''
       end
 
       def logger
