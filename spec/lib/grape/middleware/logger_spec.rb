@@ -53,13 +53,29 @@ describe Grape::Middleware::Logger do
     end
 
     describe 'integration' do
-      it 'properly logs requests', pending: 'Grape v0.12.0' do
+      let(:timestamp) { Time.now.utc.iso8601 }
+      let(:log) do
+        {
+          'timestamp'   => timestamp,
+          'application' => 'Cabbit',
+          'service'     => 'Cabbit_v1',
+          'fields' => {
+            'method' => 'POST',
+            'resource' => '/api/1.0/users',
+            'params' => {
+              'id' => '101001',
+              'name' => 'foo',
+              'password' => '[FILTERED]'
+            }
+          },
+          'status_code' =>  '200',
+          'completed_in'=> /\d.\d+ms/,
+          'errors' => ''
+        }
+      end
+      it 'properly logs requests' do
         expect(app).to receive(:call).with(env).and_return(app_response)
-        expect(subject.logger).to receive(:info).with('')
-        expect(subject.logger).to receive(:info).with(%Q(Started POST "/api/1.0/users"))
-        expect(subject.logger).to receive(:info).with(%Q(  Parameters: {"id"=>"101001", "name"=>"foo", "password"=>"[FILTERED]"}))
-        expect(subject.logger).to receive(:info).with(/Completed 200 in \d.\d+ms/)
-        expect(subject.logger).to receive(:info).with('')
+        expect(subject.logger).to receive(:info).with(log)
         subject.call!(env)
       end
     end
@@ -71,16 +87,6 @@ describe Grape::Middleware::Logger do
     it 'calls +after+ with the :status' do
       expect(subject).to receive(:after).with(403)
       subject.after_failure(error)
-    end
-
-    context 'when :message is set in the error object' do
-      let(:error) { { message: 'Oops, not found' } }
-
-      it 'logs the error message' do
-        allow(subject).to receive(:after)
-        expect(subject.logger).to receive(:info).with(Regexp.new(error[:message]))
-        subject.after_failure(error)
-      end
     end
   end
 

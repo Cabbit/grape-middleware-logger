@@ -7,8 +7,8 @@ Gem::Specification.new do |spec|
   spec.name          = 'grape-middleware-logger'
   spec.version       = Grape::Middleware::Logger::VERSION
   spec.platform      = Gem::Platform::RUBY
-  spec.authors       = ['Ryan Buckley']
-  spec.email         = ['arebuckley@gmail.com']
+  spec.authors       = ['Ryan Buckley', 'David Roy']
+  spec.email         = ['arebuckley@gmail.com', 'david.roy@cabbit.co.uk']
   spec.summary       = %q{A logger for the Grape framework}
   spec.description   = %q{Logging middleware for the Grape framework, similar to what Rails offers}
   spec.homepage      = ''

@@ -1,7 +1,7 @@
 module Grape
   module Middleware
     class Logger
-      VERSION = '0.1.2'
+      VERSION = '0.0.1'
     end
   end
 end

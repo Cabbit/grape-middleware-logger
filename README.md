@@ -3,6 +3,9 @@
 
 If you wanna use this gem, you'll need to be running Grape master [#dd0cae27](https://github.com/intridea/grape/commit/dd0cae274ee0017a22deef5e282b75cf25d65385) (April 30) or later. Otherwise, you'll have to wait for the release of 0.12.0
 
+## Cabbit Version
+This version is for providing these logs to logstash.
+
 ## Installation
 
 Add this line to your application's Gemfile:

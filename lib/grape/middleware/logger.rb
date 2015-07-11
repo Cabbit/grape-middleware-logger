@@ -1,18 +1,31 @@
 require 'logger'
 require 'grape/middleware/globals'
+require 'grape/middleware/logger/version'
 
-# avoid superclass mismatch when version file gets loaded first
 Grape::Middleware.send :remove_const, :Logger if defined? Grape::Middleware::Logger
 module Grape
   module Middleware
     class Logger < Grape::Middleware::Globals
 
+      def log
+        @log ||= {
+          'timestamp' => start_time.iso8601,
+          'application' => '',
+          'service'     => '',
+          'fields'=> {
+            'method' =>   env['grape.request'].request_method,
+            'resource' => env['grape.request'].path,
+            'params' =>   parameters
+          },
+          'status_code' =>  '',
+          'completed_in' => '',
+          'errors' => ''
+        }
+      end
+
       def before
         start_time
         super
-        logger.info ''
-        logger.info %Q(Started #{env['grape.request'].request_method} "#{env['grape.request'].path}")
-        logger.info %Q(  Parameters: #{parameters})
       end
 
       def call!(env)
@@ -20,7 +33,11 @@ module Grape
         before
         error = catch(:error) { @app_response = @app.call(@env); nil }
         if error.nil?
-          after(@app_response.first)
+          if @app_response.respond_to?(:first)
+            after(@app_response.first)
+          else
+            after(@app_response)
+          end
         else
           after_failure(error)
           throw(:error, error)
@@ -29,8 +46,9 @@ module Grape
       end
 
       def after(status)
-        logger.info "Completed #{status} in #{((Time.now - start_time) * 1000).round(2)}ms"
-        logger.info ''
+        log['status_code']  = status.to_s
+        log['completed_in'] = "#{((Time.now.utc - start_time) * 1000).round(2)}ms"
+        logger.info log
       end
 
       #
@@ -38,7 +56,7 @@ module Grape
       #
 
       def after_failure(error)
-        logger.info %Q(  Error: #{error[:message]}) if error[:message]
+        log['errors'] = %Q(Error: #{error[:message]}) if error[:message]
         after(error[:status])
       end
 
@@ -53,7 +71,7 @@ module Grape
       end
 
       def start_time
-        @start_time ||= Time.now
+        @start_time ||= Time.now.utc
       end
 
       def logger
@@ -62,5 +80,3 @@ module Grape
     end
   end
 end
-
-require 'grape/middleware/logger/version'
